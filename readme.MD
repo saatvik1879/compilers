@@ -7,3 +7,7 @@ find com -name "*.java" > sources.txt
 javac @sources.txt
 
 java com.compilers.lox.lox input.txt
+
+# for helper tools 
+
+java com.compilers.tool.GenerateAst ./com/compilers/lox

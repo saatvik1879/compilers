@@ -1,6 +1,43 @@
 package com.compilers.lox;
 
-class Interpreter implements Expr.Visitor<Object> {
+import java.util.List;
+
+class Interpreter implements Expr.Visitor<Object>,
+                             Stmt.Visitor<Void> {
+
+
+    private Environment environment = new Environment();
+
+    void interpret(List<Stmt> statements){
+        try{
+            for(Stmt statement: statements){
+                execute(statement);
+            }
+        }catch(RuntimeError err){
+            lox.runtimeError(err);
+        }
+    }
+
+    @Override
+    public Void visitExpressionStmt(Stmt.Expression stmt){
+        evaluate(stmt.expression);
+        return null;
+    }
+    @Override
+    public Void visitPrintStmt(Stmt.Print stmt){
+        Object value = evaluate(stmt.expression);
+        System.out.println(stringify(value));
+        return null;
+    }                            
+    @Override
+    public Void visitVarStmt(Stmt.Var stmt){
+        Object value = null;
+        if(stmt.initializer!=null){
+            value = evaluate(stmt.initializer);
+        }
+        environment.define(stmt.name.lexeme, value);
+        return null;
+    }
     @Override
     public Object visitLiteralExpr(Expr.Literal expr) {
         return expr.value;
@@ -66,16 +103,19 @@ class Interpreter implements Expr.Visitor<Object> {
         }
         throw new RuntimeError(expr.operator, "operands must be 2 numbers or 2 strings");
     }
-
-    void interpret(Expr expression){
-        try{
-            Object value = evaluate(expression);
-            System.out.println(stringify(value));
-        }catch(RuntimeError err){
-            lox.runtimeError(err);
-        }
+    @Override 
+    public Object visitVariableExpr(Expr.Variable expr){
+        return environment.get(expr.name);
     }
-
+    @Override 
+    public Object visitAssignExpr(Expr.Assign expr){
+        Object value = evaluate(expr.value);
+        environment.assign(expr.name,value);
+        return value;
+    }
+    private void execute(Stmt stmt){
+        stmt.accept(this); 
+    }
     private boolean isEqual(Object a,Object b){
         if(a==null && b == null)return true;
         if(a==null)return false;
