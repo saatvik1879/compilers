@@ -8,4 +8,7 @@ com/compilers/lox/TokenType.java
 com/compilers/lox/lox.java
 com/compilers/lox/Stmt.java
 com/compilers/lox/Environment.java
+com/compilers/lox/LoxCallable.java
+com/compilers/lox/LoxFunction.java
+com/compilers/lox/Return.java
 com/compilers/tool/GenerateAst.java
